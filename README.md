@@ -73,7 +73,6 @@ A modern, production-ready Inventory Management System built with the MERN stack
 - Axios
 - React Hot Toast
 - Lucide React
-- Recharts
 
 ## Backend
 
@@ -276,8 +275,8 @@ http://localhost:5173
 
 - JWT Authentication
 - Protected Routes
-- Real Dashboard Analytics
-- Interactive KPI Cards
+- Interactive Dashboard
+- Inventory KPIs
 - Search & Advanced Filtering
 - Pagination
 - Responsive Design

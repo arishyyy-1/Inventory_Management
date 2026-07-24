@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-console.log("MONGO CHECK:", process.env.MONGO_URI);
+console.log("MONGO_URI loaded:", Boolean(process.env.MONGO_URI));
 
 const connectDB = async () => {
   if (!process.env.MONGO_URI) {
