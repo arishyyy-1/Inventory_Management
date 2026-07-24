@@ -32,7 +32,6 @@ const EditProduct = () => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
 
@@ -52,16 +51,14 @@ const EditProduct = () => {
     }
   };
 
-  if (loading) {
-    return <Loader label="Loading product" />;
-  }
+  if (loading) return <Loader label="Loading product" />;
 
   if (error) {
     return (
       <PageTransition className="mx-auto max-w-4xl space-y-6">
         <Link
           to="/products"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to products
@@ -75,7 +72,7 @@ const EditProduct = () => {
     <PageTransition className="mx-auto max-w-4xl space-y-6">
       <Link
         to="/products"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to products
@@ -83,12 +80,10 @@ const EditProduct = () => {
       <div>
         <Badge variant="blue">Inventory Item</Badge>
         <div className="mt-3 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2 text-fg">
             <Edit3 className="h-5 w-5" />
           </div>
-          <h1 className="text-3xl font-bold tracking-normal text-slate-950">
-            Edit Product
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight text-fg">Edit Product</h1>
         </div>
       </div>
 

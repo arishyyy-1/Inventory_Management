@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, Hash, Layers3, Package, Save, Warehouse } from 'lucide-react';
+import { Coins, Hash, Layers3, Package, Save, Warehouse } from 'lucide-react';
 import {
   initialProductForm,
   normalizeProductPayload,
@@ -16,35 +16,30 @@ const ProductForm = ({
   serverError = '',
   isSubmitting = false
 }) => {
-  const [values, setValues] = useState({
-    ...initialProductForm,
-    ...initialValues
-  });
+  const [values, setValues] = useState({ ...initialProductForm, ...initialValues });
   const [errors, setErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setValues((currentValues) => ({
-      ...currentValues,
-      [name]: value
-    }));
+    setValues((current) => ({ ...current, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const validationErrors = validateProductForm(values);
     setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
-
+    if (Object.keys(validationErrors).length > 0) return;
     await onSubmit(normalizeProductPayload(values));
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <ErrorMessage message={serverError} />
+
+      <div>
+        <h2 className="text-lg font-bold tracking-tight text-fg">Product Information</h2>
+        <p className="text-sm text-muted">Enter details about the inventory item.</p>
+      </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         <Input
@@ -90,23 +85,23 @@ const ProductForm = ({
           required
         />
         <Input
-          icon={DollarSign}
-          label="Price"
+          icon={Coins}
+          label="Price (PKR)"
           min="0"
           name="price"
-          step="0.01"
+          step="1"
           type="number"
           value={values.price}
           onChange={handleChange}
-          placeholder="49.99"
+          placeholder="7000.00"
           error={errors.price}
           required
         />
 
-        <label className="block space-y-2 text-sm font-semibold text-slate-700 md:col-span-2">
+        <label className="block space-y-1.5 text-sm font-semibold text-fg md:col-span-2">
           Description
           <textarea
-            className="min-h-32 w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-950 shadow-sm transition placeholder:text-slate-400 focus:border-slate-950 focus:outline-none focus:ring-4 focus:ring-slate-200"
+            className="min-h-32 w-full resize-y rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-fg shadow-soft transition-all duration-200 placeholder:text-subtle hover:border-brand/40 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15"
             name="description"
             value={values.description}
             onChange={handleChange}

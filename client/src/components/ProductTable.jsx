@@ -1,125 +1,145 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Edit3, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit3, Trash2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import Badge from './ui/Badge.jsx';
 
-const ProductTable = ({ products, onDelete }) => (
-  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft">
-    <div className="max-h-[68vh] overflow-auto">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
-          <tr>
-            <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">
-              Product
-            </th>
-            <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">
-              SKU
-            </th>
-            <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">
-              Category
-            </th>
-            <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">
-              Qty
-            </th>
-            <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">
-              Price
-            </th>
-            <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">
-              Updated
-            </th>
-            <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 bg-white">
-          {products.map((product) => (
-            <motion.tr
-              key={product._id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="transition hover:bg-slate-50"
-            >
-              <td className="max-w-xs px-5 py-4">
-                <div className="font-semibold text-slate-950">
-                  {product.productName}
-                </div>
-                {product.description && (
-                  <div className="mt-1 truncate text-sm text-slate-500">
-                    {product.description}
-                  </div>
-                )}
-              </td>
-              <td className="px-5 py-4 text-sm text-slate-600">{product.sku}</td>
-              <td className="px-5 py-4 text-sm text-slate-600">
-                {product.category}
-              </td>
-              <td className="px-5 py-4 text-right text-sm font-semibold text-slate-800">
-                <div className="flex justify-end">
-                  <Badge
-                    variant={Number(product.quantity) <= 5 ? 'warning' : 'success'}
-                  >
-                    {product.quantity} in stock
-                  </Badge>
-                </div>
-              </td>
-              <td className="px-5 py-4 text-right text-sm font-semibold text-slate-800">
-                {formatCurrency(product.price)}
-              </td>
-              <td className="px-5 py-4 text-sm text-slate-500">
-                {formatDate(product.updatedAt)}
-              </td>
-              <td className="px-5 py-4 text-right">
-                <div className="flex justify-end gap-2">
-                  <Link
-                    to={`/products/${product._id}/edit`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-100"
-                    aria-label={`Edit ${product.productName}`}
-                  >
-                    <Edit3 className="h-4 w-4" />
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(product)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-50"
-                    aria-label={`Delete ${product.productName}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-      <span>
-        Showing <strong className="text-slate-900">{products.length}</strong>{' '}
-        products
-      </span>
-      <div className="flex gap-2">
+const LOW_STOCK_THRESHOLD = 5;
+
+const SORTABLE_COLUMNS = [
+  { field: 'productName', label: 'Product', align: 'left' },
+  { field: 'quantity', label: 'Stock', align: 'right' },
+  { field: 'price', label: 'Price', align: 'right' }
+];
+
+const SortIcon = ({ isActive, order }) => {
+  if (!isActive) return <ArrowUpDown className="h-3.5 w-3.5 text-subtle" />;
+  return order === 'asc' ? (
+    <ArrowUp className="h-3.5 w-3.5 text-brand" />
+  ) : (
+    <ArrowDown className="h-3.5 w-3.5 text-brand" />
+  );
+};
+
+const stockBadge = (qty) => {
+  const q = Number(qty || 0);
+  if (q === 0) return { variant: 'danger', label: `${q} in stock` };
+  if (q <= LOW_STOCK_THRESHOLD) return { variant: 'warning', label: `${q} in stock` };
+  return { variant: 'success', label: `${q} in stock` };
+};
+
+const ProductTable = ({ products, onDelete, sort, order, onSortChange }) => {
+  const renderSortableHeader = ({ field, label, align }) => {
+    const isActive = sort === field;
+    return (
+      <th
+        key={field}
+        className={`px-5 py-3 text-xs font-bold uppercase tracking-wide text-muted ${
+          align === 'right' ? 'text-right' : 'text-left'
+        }`}
+      >
         <button
           type="button"
-          disabled
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-400"
+          onClick={() => onSortChange(field)}
+          className={`inline-flex items-center gap-1.5 transition-colors hover:text-brand ${
+            align === 'right' ? 'flex-row-reverse' : ''
+          } ${isActive ? 'text-brand' : ''}`}
         >
-          Previous
+          {label}
+          <SortIcon isActive={isActive} order={order} />
         </button>
-        <button
-          type="button"
-          disabled
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-400"
-        >
-          Next
-        </button>
+      </th>
+    );
+  };
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+      <div className="max-h-[68vh] overflow-auto">
+        <table className="min-w-full">
+          <thead className="sticky top-0 z-10 border-b border-line bg-surface-2/95 backdrop-blur">
+            <tr>
+              {renderSortableHeader(SORTABLE_COLUMNS[0])}
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-muted">
+                SKU
+              </th>
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-muted">
+                Category
+              </th>
+              {renderSortableHeader(SORTABLE_COLUMNS[1])}
+              {renderSortableHeader(SORTABLE_COLUMNS[2])}
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-muted">
+                Updated
+              </th>
+              <th className="px-5 py-3 text-right text-xs font-bold uppercase tracking-wide text-muted">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {products.map((product, index) => {
+              const badge = stockBadge(product.quantity);
+              return (
+                <motion.tr
+                  key={product._id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.2) }}
+                  className={`row-hover ${index % 2 === 1 ? 'bg-surface-2/50' : ''}`}
+                >
+                  <td className="max-w-xs px-5 py-4">
+                    <div className="font-semibold text-fg">{product.productName}</div>
+                    {product.description && (
+                      <div className="mt-0.5 truncate text-sm text-muted">
+                        {product.description}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-muted tabular-nums">{product.sku}</td>
+                  <td className="px-5 py-4 text-sm text-muted">{product.category}</td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex justify-end">
+                      <Badge variant={badge.variant}>{badge.label}</Badge>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-right text-sm font-semibold text-fg tabular-nums">
+                    {formatCurrency(product.price)}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-muted">
+                    {formatDate(product.updatedAt)}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        to={`/products/${product._id}/edit`}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-fg transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:text-brand"
+                        aria-label={`Edit ${product.productName}`}
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(product)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-danger/30 bg-surface px-3 py-1.5 text-sm font-semibold text-danger transition-all duration-200 hover:-translate-y-0.5 hover:bg-danger-soft"
+                        aria-label={`Delete ${product.productName}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="border-t border-line bg-surface-2 px-5 py-3 text-sm text-muted">
+        Showing <strong className="text-fg">{products.length}</strong>{' '}
+        product{products.length === 1 ? '' : 's'} on this page
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default ProductTable;

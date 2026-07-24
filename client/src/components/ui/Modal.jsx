@@ -4,7 +4,7 @@ const Modal = ({ children, isOpen, onClose, title }) => (
   <AnimatePresence>
     {isOpen && (
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-fg/40 px-4 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -14,11 +14,11 @@ const Modal = ({ children, isOpen, onClose, title }) => (
         onMouseDown={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 18 }}
+          initial={{ opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 18 }}
+          exit={{ opacity: 0, scale: 0.96, y: 16 }}
           transition={{ duration: 0.2 }}
-          className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+          className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-lift"
           onMouseDown={(event) => event.stopPropagation()}
         >
           {children}

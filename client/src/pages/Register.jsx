@@ -10,11 +10,7 @@ import ErrorMessage from '../components/ErrorMessage.jsx';
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [values, setValues] = useState({
-    fullName: '',
-    email: '',
-    password: ''
-  });
+  const [values, setValues] = useState({ fullName: '', email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -35,26 +31,22 @@ const Register = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setValues((current) => ({ ...current, [name]: value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues((v) => ({ ...v, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setServerError('');
-
     if (!validate()) return;
-
     setIsSubmitting(true);
     const result = await register(values);
     setIsSubmitting(false);
-
     if (result.success) {
       navigate('/', { replace: true });
       return;
     }
-
     setServerError(result.message);
   };
 
@@ -99,8 +91,8 @@ const Register = () => {
           rightElement={
             <button
               type="button"
-              onClick={() => setShowPassword((current) => !current)}
-              className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              onClick={() => setShowPassword((v) => !v)}
+              className="rounded-md p-1 text-subtle transition hover:bg-surface-2 hover:text-fg"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -111,9 +103,9 @@ const Register = () => {
           Create Account
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-muted">
         Already have an account?{' '}
-        <Link className="font-semibold text-slate-950 hover:underline" to="/login">
+        <Link className="font-semibold text-brand hover:underline" to="/login">
           Login
         </Link>
       </p>

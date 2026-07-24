@@ -17,10 +17,15 @@ const App = () => (
       toastOptions={{
         duration: 3500,
         style: {
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 18px 45px rgba(15, 23, 42, 0.12)'
-        }
+          background: 'rgb(var(--surface))',
+          color: 'rgb(var(--fg))',
+          border: '1px solid rgb(var(--line))',
+          borderRadius: '14px',
+          boxShadow:
+            '0 1px 2px rgba(15,23,42,0.04), 0 12px 30px rgba(15,23,42,0.10)'
+        },
+        success: { iconTheme: { primary: 'rgb(var(--success))', secondary: 'rgb(var(--surface))' } },
+        error: { iconTheme: { primary: 'rgb(var(--danger))', secondary: 'rgb(var(--surface))' } }
       }}
     />
     <Routes>

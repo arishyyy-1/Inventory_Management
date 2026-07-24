@@ -51,6 +51,32 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Builds a query string from a params object.
+ * - Omits undefined, null, empty-string, and 'all' values.
+ * - Trims string values before appending.
+ */
+export const buildQueryString = (params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, rawValue]) => {
+    if (rawValue === undefined || rawValue === null) {
+      return;
+    }
+
+    const value = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
+
+    if (value === '' || value === 'all') {
+      return;
+    }
+
+    searchParams.append(key, value);
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : '';
+};
+
 export const authService = {
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
@@ -67,8 +93,14 @@ export const authService = {
 };
 
 export const productService = {
-  getProducts: async () => {
-    const response = await api.get('/products');
+  /**
+   * Fetches products with server-side search, filtering, sorting, and pagination.
+   * @param {Object} params - { page, limit, search, category, minPrice, maxPrice,
+   *   minQty, maxQty, availability, sort, order }
+   */
+  getProducts: async (params = {}) => {
+    const query = buildQueryString(params);
+    const response = await api.get(`/products${query}`);
     return response.data;
   },
   getProduct: async (id) => {

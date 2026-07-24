@@ -29,26 +29,19 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setServerError('');
-
     if (!validate()) return;
-
     setIsSubmitting(true);
     const result = await login(values);
     setIsSubmitting(false);
-
     if (result.success) {
       navigate(location.state?.from?.pathname || '/', { replace: true });
       return;
     }
-
     setServerError(result.message);
   };
 
   return (
-    <AuthLayout
-      title="Welcome back"
-      subtitle="Login to manage protected inventory workflows."
-    >
+    <AuthLayout title="Welcome back" subtitle="Login to manage protected inventory workflows.">
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <ErrorMessage message={serverError} />
         <motion.div layout>
@@ -60,9 +53,7 @@ const Login = () => {
             autoComplete="email"
             placeholder="you@example.com"
             value={values.email}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, email: event.target.value }))
-            }
+            onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))}
             error={errors.email}
           />
         </motion.div>
@@ -75,18 +66,13 @@ const Login = () => {
             autoComplete="current-password"
             placeholder="Enter your password"
             value={values.password}
-            onChange={(event) =>
-              setValues((current) => ({
-                ...current,
-                password: event.target.value
-              }))
-            }
+            onChange={(e) => setValues((v) => ({ ...v, password: e.target.value }))}
             error={errors.password}
             rightElement={
               <button
                 type="button"
-                onClick={() => setShowPassword((current) => !current)}
-                className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                onClick={() => setShowPassword((v) => !v)}
+                className="rounded-md p-1 text-subtle transition hover:bg-surface-2 hover:text-fg"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -98,9 +84,9 @@ const Login = () => {
           Login
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-muted">
         New here?{' '}
-        <Link className="font-semibold text-slate-950 hover:underline" to="/register">
+        <Link className="font-semibold text-brand hover:underline" to="/register">
           Create an account
         </Link>
       </p>

@@ -2,19 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Design tokens ---------- */
+
 :root {
-  color: #0f172a;
-  background: #f8fafc;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  /* Surfaces */
+  --bg: 247 249 252;               /* page background — very light blue-tinted */
+  --surface: 255 255 255;          /* card */
+  --surface-2: 248 250 253;        /* subtle inset */
+  --fg: 15 23 42;                  /* slate-950 */
+  --muted: 71 85 105;              /* slate-600 */
+  --subtle: 148 163 184;           /* slate-400 */
+  --line: 226 232 240;             /* slate-200 */
+
+  /* Brand */
+  --brand: 37 99 235;              /* blue-600 */
+  --brand-soft: 219 234 254;       /* blue-100 */
+  --brand-fg: 255 255 255;
+
+  /* Semantic */
+  --success: 5 150 105;
+  --success-soft: 209 250 229;
+  --warn: 217 119 6;
+  --warn-soft: 254 243 199;
+  --danger: 220 38 38;
+  --danger-soft: 254 226 226;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: 8 12 22;                    /* deep near-black with slight blue */
+  --surface: 17 24 39;              /* gray-900 */
+  --surface-2: 22 30 46;
+  --fg: 241 245 249;                /* slate-100 */
+  --muted: 148 163 184;             /* slate-400 */
+  --subtle: 100 116 139;            /* slate-500 */
+  --line: 39 51 74;
+
+  --brand: 96 165 250;              /* blue-400 for dark bg */
+  --brand-soft: 30 58 138;          /* blue-900 */
+  --brand-fg: 8 12 22;
+
+  --success: 52 211 153;
+  --success-soft: 6 78 59;
+  --warn: 251 191 36;
+  --warn-soft: 120 53 15;
+  --danger: 248 113 113;
+  --danger-soft: 127 29 29;
+
+  color-scheme: dark;
+}
+
+html,
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
 }
 
 body {
+  margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  margin: 0;
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
+}
+
+* {
+  border-color: rgb(var(--line));
 }
 
 button,
@@ -22,35 +81,74 @@ input,
 textarea,
 select {
   font: inherit;
+  color: inherit;
 }
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.35);
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--brand));
   outline-offset: 2px;
+  border-radius: 8px;
 }
 
 ::selection {
-  background: #dbeafe;
-  color: #0f172a;
+  background: rgb(var(--brand) / 0.25);
+  color: rgb(var(--fg));
 }
 
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgb(var(--line));
   border-radius: 999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgb(var(--subtle));
+}
+
+/* ---------- Reusable primitives ---------- */
+
+@layer components {
+  .surface-card {
+    @apply rounded-2xl border border-line bg-surface shadow-soft;
+  }
+  .glass-nav {
+    background: linear-gradient(
+      180deg,
+      rgb(var(--surface) / 0.85),
+      rgb(var(--surface) / 0.7)
+    );
+    backdrop-filter: saturate(140%) blur(14px);
+  }
+  .dark .glass-nav {
+    background: linear-gradient(
+      180deg,
+      rgb(var(--surface) / 0.85),
+      rgb(var(--surface) / 0.7)
+    );
+  }
+  .kpi-card {
+    @apply surface-card p-5 transition-all duration-200 ease-out;
+  }
+  .kpi-card:hover {
+    @apply -translate-y-1 shadow-lift;
+    border-color: rgb(var(--brand) / 0.6);
+  }
+  .row-hover {
+    @apply transition-colors duration-150;
+  }
+  .row-hover:hover {
+    background: rgb(var(--brand) / 0.05);
+  }
+  .zebra > tr:nth-child(even) {
+    background: rgb(var(--surface-2));
+  }
 }
