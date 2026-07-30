@@ -39,6 +39,7 @@ const EditProduct = () => {
     try {
       setIsSubmitting(true);
       setServerError('');
+      
       await productService.updateProduct(id, productData);
       toast.success('Product updated successfully');
       navigate('/products', {

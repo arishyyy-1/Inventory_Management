@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import Badge from './ui/Badge.jsx';
 
 const LOW_STOCK_THRESHOLD = 5;
+const SERVER_URL = (import.meta.env.VITE_API_URL || '').replace('/api', '');
 
 const SORTABLE_COLUMNS = [
   { field: 'productName', label: 'Product', align: 'left' },
@@ -78,6 +79,13 @@ const ProductTable = ({ products, onDelete, sort, order, onSortChange }) => {
           <tbody className="divide-y divide-line">
             {products.map((product, index) => {
               const badge = stockBadge(product.quantity);
+              
+              // Extract category name if populated object, or fallback
+              const categoryName =
+                typeof product.category === 'object' && product.category?.name
+                  ? product.category.name.toUpperCase()
+                  : product.category || 'N/A';
+
               return (
                 <motion.tr
                   key={product._id}
@@ -87,15 +95,39 @@ const ProductTable = ({ products, onDelete, sort, order, onSortChange }) => {
                   className={`row-hover ${index % 2 === 1 ? 'bg-surface-2/50' : ''}`}
                 >
                   <td className="max-w-xs px-5 py-4">
-                    <div className="font-semibold text-fg">{product.productName}</div>
-                    {product.description && (
-                      <div className="mt-0.5 truncate text-sm text-muted">
-                        {product.description}
+                    <div className="flex items-center gap-3">
+                      {/* Product Thumbnail */}
+                      {product.image?.url ? (
+                        <img
+                          src={`${SERVER_URL}${product.image.url}`}
+                          alt={product.productName}
+                          className="h-10 w-10 flex-shrink-0 rounded-lg object-cover border border-line shadow-sm"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-line bg-surface-2 text-[10px] font-semibold text-subtle">
+                          No Img
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-fg truncate">{product.productName}</div>
+                        {product.description && (
+                          <div className="mt-0.5 truncate text-sm text-muted">
+                            {product.description}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </td>
                   <td className="px-5 py-4 text-sm text-muted tabular-nums">{product.sku}</td>
-                  <td className="px-5 py-4 text-sm text-muted">{product.category}</td>
+                  
+                  {/* Category Cell */}
+                  <td className="px-5 py-4 text-sm text-muted">
+                    <span className="inline-flex items-center rounded-md bg-surface-2 px-2 py-1 text-xs font-semibold text-fg border border-line">
+                      {categoryName}
+                    </span>
+                  </td>
+
                   <td className="px-5 py-4 text-right">
                     <div className="flex justify-end">
                       <Badge variant={badge.variant}>{badge.label}</Badge>

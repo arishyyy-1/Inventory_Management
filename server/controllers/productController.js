@@ -1,6 +1,24 @@
 import Product from '../models/Product.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const removeLocalImage = (filename) => {
+  if (!filename) return;
+  const filePath = path.join(__dirname, '../uploads', filename);
+
+
+
+  if (fs.existsSync(filePath)) {
+    fs.unlink(filePath, (err) => {
+      if (err) console.error('Error deleting local file:', err);
+    });
+  }
+};
 const ALLOWED_SORT_FIELDS = ['price', 'quantity', 'productName', 'createdAt'];
 const DEFAULT_SORT_FIELD = 'createdAt';
 const DEFAULT_ORDER = 'desc';
@@ -36,9 +54,9 @@ const buildFilter = (query) => {
     ];
   }
 
-  if (category && category.trim() && category.trim().toLowerCase() !== 'all') {
-    filter.category = category.trim();
-  }
+ if (category && category !== 'all') {
+  filter.category = category;
+}
 
   const minPriceValue = parseNumber(minPrice);
   const maxPriceValue = parseNumber(maxPrice);
@@ -83,9 +101,13 @@ export const getProducts = asyncHandler(async (req, res) => {
   const sort = buildSort(req.query);
 
   const [products, totalProducts] = await Promise.all([
-    Product.find(filter).sort(sort).skip(skip).limit(limit),
-    Product.countDocuments(filter)
-  ]);
+  Product.find(filter)
+    .populate('category', 'name description')
+    .sort(sort)
+    .skip(skip)
+    .limit(limit),
+  Product.countDocuments(filter)
+]);
 
   const totalPages = totalProducts === 0 ? 0 : Math.ceil(totalProducts / limit);
 
@@ -102,8 +124,8 @@ export const getProducts = asyncHandler(async (req, res) => {
 });
 
 export const getProductById = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
-
+  const product = await Product.findById(req.params.id)
+  .populate('category', 'name description');
   if (!product) {
     res.status(404);
     throw new Error('Product not found');
@@ -116,25 +138,70 @@ export const getProductById = asyncHandler(async (req, res) => {
 });
 
 export const createProduct = asyncHandler(async (req, res) => {
-  const product = await Product.create(req.body);
+  const productData = { ...req.body };
 
-  res.status(201).json({
-    success: true,
-    message: 'Product created successfully',
-    data: product
-  });
+  if (req.file) {
+    productData.image = {
+      url: `/uploads/${req.file.filename}`,
+      filename: req.file.filename,
+    };
+  }
+
+  try {
+    const product = await Product.create(productData);
+    await product.populate('category', 'name description');
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: product
+    });
+  } catch (error) {
+    if (req.file) removeLocalImage(req.file.filename);
+    throw error;
+  }
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true
-  });
+  const existingProduct = await Product.findById(req.params.id);
 
-  if (!product) {
+  if (!existingProduct) {
+    if (req.file) removeLocalImage(req.file.filename);
     res.status(404);
     throw new Error('Product not found');
   }
+
+  const updateData = { ...req.body };
+
+console.log('removeImage:', req.body.removeImage);
+console.log('has file:', !!req.file);
+
+  if (req.file) {
+    if (existingProduct.image && existingProduct.image.filename) {
+      removeLocalImage(existingProduct.image.filename);
+    }
+    updateData.image = {
+      url: `/uploads/${req.file.filename}`,
+      filename: req.file.filename,
+    };
+  }
+
+  if (req.body.removeImage === 'true' && !req.file) {
+
+    if (existingProduct.image && existingProduct.image.filename) {
+      removeLocalImage(existingProduct.image.filename);
+    }
+
+    updateData.image = {
+      url: '',
+      filename: '',
+    };
+ }
+
+  const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+    new: true,
+    runValidators: true
+  }).populate('category', 'name description');
 
   res.status(200).json({
     success: true,
@@ -144,12 +211,18 @@ export const updateProduct = asyncHandler(async (req, res) => {
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findById(req.params.id);
 
   if (!product) {
     res.status(404);
     throw new Error('Product not found');
   }
+
+  if (product.image && product.image.filename) {
+    removeLocalImage(product.image.filename);
+  }
+
+  await product.deleteOne();
 
   res.status(200).json({
     success: true,

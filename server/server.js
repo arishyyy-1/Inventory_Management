@@ -12,6 +12,8 @@ import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import path from 'path';
+import categoryRoutes from './routes/categoryRoutes.js';
 
 dotenv.config();
 
@@ -26,7 +28,11 @@ if (!CLIENT_URL) {
   throw new Error('CLIENT_URL is required. Add it to your server .env file.');
 }
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+  })
+);
 app.use(
   cors({
     origin: CLIENT_URL,
@@ -34,6 +40,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/api/health', (req, res) => {
@@ -45,6 +52,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -34,11 +34,11 @@ const FilterPanel = ({
         className={`${selectClasses} pl-10`}
       >
         <option value="all">All categories</option>
-        {categories.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
+{categories.map((c) => (
+  <option key={c._id} value={c._id}>
+    {c.name}
+  </option>
+))}
       </select>
     </label>
 

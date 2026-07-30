@@ -19,11 +19,10 @@ const productSchema = new mongoose.Schema(
       maxlength: [60, 'SKU cannot exceed 60 characters']
     },
     category: {
-      type: String,
-      required: [true, 'Category is required'],
-      trim: true,
-      maxlength: [80, 'Category cannot exceed 80 characters']
-    },
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Category',
+  required: [true, 'Category is required'],
+},
     quantity: {
       type: Number,
       required: [true, 'Quantity is required'],
@@ -34,6 +33,16 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Price is required'],
       min: [0, 'Price cannot be negative']
     },
+    image: {
+  url: {
+    type: String,
+    default: '',
+  },
+  filename: {
+    type: String,
+    default: '',
+  },
+},
     description: {
       type: String,
       trim: true,

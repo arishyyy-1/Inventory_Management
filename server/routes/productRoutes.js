@@ -9,6 +9,7 @@ import {
 } from '../controllers/productController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import validateRequest from '../middleware/validateRequest.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -31,11 +32,10 @@ const productValidators = [
     .isLength({ min: 2, max: 60 })
     .withMessage('SKU must be between 2 and 60 characters'),
   body('category')
-    .trim()
-    .notEmpty()
-    .withMessage('Category is required')
-    .isLength({ max: 80 })
-    .withMessage('Category cannot exceed 80 characters'),
+  .notEmpty()
+  .withMessage('Category is required')
+  .isMongoId()
+  .withMessage('Invalid category'),
   body('quantity')
     .notEmpty()
     .withMessage('Quantity is required')
@@ -54,15 +54,25 @@ const productValidators = [
   validateRequest
 ];
 
-router.route('/').get(getProducts).post(protect, productValidators, createProduct);
+router
+  .route('/')
+  .get(protect, getProducts)
+  .post(
+  protect,
+  upload.single('image'),
+  productValidators,
+  createProduct
+);
+
 router
   .route('/:id')
-  .get(mongoIdValidator, getProductById)
+  .get(protect, mongoIdValidator, getProductById)
   .put(
-    protect,
-    [...mongoIdValidator.slice(0, -1), ...productValidators],
-    updateProduct
-  )
+  protect,
+  upload.single('image'),
+  [...mongoIdValidator.slice(0, -1), ...productValidators],
+  updateProduct
+)
   .delete(protect, mongoIdValidator, deleteProduct);
 
 export default router;

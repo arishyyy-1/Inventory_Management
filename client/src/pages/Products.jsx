@@ -16,6 +16,7 @@ import Skeleton from '../components/Skeleton.jsx';
 import Button from '../components/ui/Button.jsx';
 import Card from '../components/ui/Card.jsx';
 import Badge from '../components/ui/Badge.jsx';
+import { categoryService } from '../services/api';
 
 export const LIMIT_OPTIONS = [10, 25, 50, 100];
 
@@ -66,34 +67,26 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    if (location.state?.successMessage) {
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.pathname, location.state, navigate]);
+  let isMounted = true;
 
-  useEffect(() => {
-    let isMounted = true;
-    const loadCategories = async () => {
-      try {
-        const response = await productService.getProducts({
-          limit: 100,
-          sort: 'productName',
-          order: 'asc'
-        });
-        if (!isMounted) return;
-        const uniqueCategories = [
-          ...new Set((response.data || []).map((product) => product.category))
-        ].sort();
-        setCategories(uniqueCategories);
-      } catch {
-        // non-critical
+  const loadCategories = async () => {
+    try {
+      const response = await categoryService.getCategories();
+
+      if (isMounted) {
+        setCategories(response.data || []);
       }
-    };
-    loadCategories();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    } catch {
+      // non-critical
+    }
+  };
+
+  loadCategories();
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
 
   const rawAvailability = searchParams.get('availability') || DEFAULTS.availability;
 

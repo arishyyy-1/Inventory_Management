@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { productService } from '../services/api';
+import { getReadableError } from '../utils/errorUtils';
 
 const DEFAULT_PAGINATION = {
   currentPage: 1,
@@ -9,11 +10,6 @@ const DEFAULT_PAGINATION = {
   hasPreviousPage: false
 };
 
-const getReadableError = (error, fallbackMessage) => {
-  const responseMessage = error?.response?.data?.message;
-  const firstValidationError = error?.response?.data?.errors?.[0]?.message;
-  return firstValidationError || responseMessage || fallbackMessage;
-};
 
 /**
  * Fetches products from the server using the supplied query params and

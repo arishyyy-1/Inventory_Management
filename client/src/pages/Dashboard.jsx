@@ -356,7 +356,7 @@ const Dashboard = () => {
               value={inStockCount}
               total={totalStock}
               variant="success"
-              onClick={() => navigate('/products?availability=in-stock')}
+              onClick={() => navigate('/products?minQty=6')}
             />
             <StockRow
               icon={AlertTriangle}
@@ -472,7 +472,7 @@ const Dashboard = () => {
                         <p className="text-xs text-muted">{p.sku}</p>
                       </td>
                       <td className="hidden px-4 py-3 text-sm text-muted sm:table-cell">
-                        {p.category}
+                        {p.category?.name || 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Badge variant={variant}>{qty} units</Badge>

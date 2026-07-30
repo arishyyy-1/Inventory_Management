@@ -33,8 +33,13 @@ api.interceptors.request.use((config) => {
     }
   }
 
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   return config;
 });
+
 
 api.interceptors.response.use(
   (response) => response,
@@ -120,5 +125,10 @@ export const productService = {
     return response.data;
   }
 };
-
+export const categoryService = {
+  getCategories: async () => {
+    const response = await api.get('/categories');
+    return response.data;
+  }
+};
 export default api;

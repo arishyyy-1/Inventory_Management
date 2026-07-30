@@ -23,7 +23,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.code === 11000) {
     statusCode = 409;
     const field = Object.keys(err.keyValue || {})[0] || 'field';
-    message = `A product with this ${field} already exists`;
+    message = `A record with this ${field} already exists`;
     errors = [{ field, message }];
   }
 
